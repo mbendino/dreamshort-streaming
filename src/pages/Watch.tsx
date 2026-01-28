@@ -11,6 +11,7 @@ export default function Watch() {
   const { chapters, loading: chaptersLoading } = useChapters(id!)
   const [currentEpisode, setCurrentEpisode] = useState(1)
   const [videoUrl, setVideoUrl] = useState('')
+  const [subtitles, setSubtitles] = useState<{ languageCode: string; languageName: string; subtitlesUrl: string }[]>([])
   const [videoLoading, setVideoLoading] = useState(false)
   const [showLockPopup, setShowLockPopup] = useState(false)
   const { lang } = useLanguage()
@@ -34,6 +35,7 @@ export default function Watch() {
         
         if (data.message === 'ok') {
           setVideoUrl(data.chapter.bookChapterResource.normalSourceUrl)
+          setSubtitles(data.chapter.bookChapterResource.subtitles || [])
         }
       } catch (e) {
         console.error(e)
@@ -104,9 +106,21 @@ export default function Watch() {
             controls
             autoPlay
             playsInline
+            crossOrigin="anonymous"
             onEnded={handleVideoEnded}
             className="w-full aspect-[9/16] object-contain bg-black"
-          />
+          >
+            {subtitles.map(sub => (
+              <track
+                key={sub.languageCode}
+                kind="subtitles"
+                src={sub.subtitlesUrl}
+                srcLang={sub.languageCode}
+                label={sub.languageName}
+                default={sub.languageCode === 'id' || sub.languageCode === 'en'}
+              />
+            ))}
+          </video>
         </div>
 
         {/* Content */}
