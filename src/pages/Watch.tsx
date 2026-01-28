@@ -106,7 +106,6 @@ export default function Watch() {
             controls
             autoPlay
             playsInline
-            crossOrigin="anonymous"
             onEnded={handleVideoEnded}
             className="w-full aspect-[9/16] object-contain bg-black"
           >
@@ -114,10 +113,10 @@ export default function Watch() {
               <track
                 key={sub.languageCode}
                 kind="subtitles"
-                src={sub.subtitlesUrl}
+                src={`/api/subtitle?url=${encodeURIComponent(sub.subtitlesUrl)}`}
                 srcLang={sub.languageCode}
                 label={sub.languageName}
-                default={sub.languageCode === 'id' || sub.languageCode === 'en'}
+                default={sub.languageCode === 'id'}
               />
             ))}
           </video>

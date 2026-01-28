@@ -10,6 +10,21 @@ const TOKEN = process.env.AUTH_TOKEN
 
 app.use('/api', async (req, res) => {
   const path = req.path
+  
+  // Proxy subtitle
+  if (path === '/subtitle') {
+    try {
+      const response = await axios.get(req.query.url, { responseType: 'text' })
+      res.setHeader('Content-Type', 'text/vtt')
+      // Convert SRT to VTT
+      const vtt = 'WEBVTT\n\n' + response.data.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2')
+      res.send(vtt)
+    } catch (err) {
+      res.status(500).send('')
+    }
+    return
+  }
+  
   try {
     const response = await axios.get(`${API_URL}${path}`, {
       params: req.query,

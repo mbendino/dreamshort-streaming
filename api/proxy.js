@@ -13,6 +13,21 @@ export default async function handler(req, res) {
   const path = req.url.replace('/api', '');
   const [pathname, queryString] = path.split('?');
 
+  // Proxy subtitle
+  if (pathname === '/subtitle') {
+    const params = new URLSearchParams(queryString);
+    const url = params.get('url');
+    if (!url) return res.status(400).send('');
+    try {
+      const response = await axios.get(url, { responseType: 'text' });
+      res.setHeader('Content-Type', 'text/vtt');
+      const vtt = 'WEBVTT\n\n' + response.data.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
+      return res.send(vtt);
+    } catch (err) {
+      return res.status(500).send('');
+    }
+  }
+
   if (!TOKEN) {
     return res.status(500).json({ error: 'AUTH_TOKEN not configured' });
   }
